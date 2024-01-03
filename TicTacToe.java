@@ -27,10 +27,6 @@ public class TicTacToe {
         input = inp;
     }
 
-    //Used in GameRun class so the game doesn't run indefinitely.
-    /*public boolean isGameOver() {
-        return gameOver;
-    }*/
 
     //Gets the player input and depending on the input assigns the row and column of the array to the respective variables.
     //These variables are used later on to change the array value to plug in the X and O respectively
@@ -73,20 +69,30 @@ public class TicTacToe {
     }
 
 
+    //Runs ai's turn
     public void ai() {
+
+
         int score;
+        //sets best score to rly low number so all future scores are greater than
         int bestScore = -999999;
+        //set both to -1 because they are an invalid place on the board
         int bestMoveI = -1;
         int bestMoveJ = -1;
+        //loop through each spot in the board
         for (int i = 0; i < 3; i++) {
             for (int j = 0; j < 3; j++) {
-                // Check if the spot is available
 
+                // Check if the spot is available
                 if (gameBoard[i][j] == '*') {
+                    //if spot is available replace the star with an X.
                     gameBoard[i][j] = 'X';
+                    //Now run minimax on this board with the new X (isMaximizing is false because we just placed an X so next turn is O
                     score = minimax(gameBoard, 0, false);
+                    //Undo move on real board
                     gameBoard[i][j] = '*';
 
+                    //If the score we got from minimax> our best score, replace best score as we want the highest score possible (aka the best move)
                     if (score > bestScore) {
                         bestScore = score;
                         bestMoveI = i;
@@ -100,59 +106,76 @@ public class TicTacToe {
         if (bestMoveI != -1 && bestMoveJ != -1) {
             gameBoard[bestMoveI][bestMoveJ] = 'X';
         }
+
+        //For debugging purposes
         System.out.println(bestScore);
 
     }
 
+    //Minimax
     public int minimax(char[][] arr, int depth, boolean isMaximizing){
         //check for a win and if someone did win return score accordingly
         //If X win, +10, if O win, -10, if tie, +0
         checkWin();
         if(winner){
+            //If there is a winner check who won
             if(isMaximizing){
                 winner = false;
-                return 10;
+                return 1;
             } else{
                 winner = false;
-                return -10;
+                return -1;
             }
         } else if(tie){
             tie = false;
             return 0;
         }
 
+        //create two variables for score and best score
         int bestScoreAI;
-        if(isMaximizing){
-            bestScoreAI = -999999;
-        } else{
-            bestScoreAI = 9999999;
-        }
-
         int scoreAI;
 
+        //If we are maximizing (trying to find highest score for X)
         if(isMaximizing){
+            //Set best score super low
+            bestScoreAI = -999999;
+            //Loop through board to find empty space
             for (int i = 0; i < 3; i++) {
                 for (int j = 0; j < 3; j++) {
-                    if(gameBoard[i][j] == '*'){
-                        gameBoard[i][j] = 'X';
+                    //if spot empty place an X
+                    if(arr[i][j] == '*'){
+                        arr[i][j] = 'X';
+                        //Call minimax on new board
                         scoreAI = minimax(arr, depth + 1, false);
-                        gameBoard[i][j] = '*';
+                        //undo move
+                        arr[i][j] = '*';
+                        //If score from minimax > best score, change best score (we are trying to maximize)
                         if(scoreAI > bestScoreAI){
                             bestScoreAI = scoreAI;
                         }
                     }
                 }
             }
+            /*reset the winner and tie as they were called above so if we run multiple instances of our board eventually the game
+            *   will end and there will be a winner/ tie and we don't want that to stay or else everytime we call minimax later on
+            *   it will automatically go into the winner condition returning 1/-1 */
             winner = false;
             tie = false;
+            //return best score
             return bestScoreAI;
+
+            //this is for minimizing
         } else{
+            //since minimizing set bestscore super high because we want a low score
+            bestScoreAI = 9999999;
+            //again loop through board and change to X and call minimax this time for maximizing
             for (int i = 0; i < 3; i++) {
                 for (int j = 0; j < 3; j++) {
-                    if(gameBoard[i][j] == '*'){
-                        gameBoard[i][j] = 'X';
+                    if(arr[i][j] == '*'){
+                        arr[i][j] = 'X';
                         scoreAI = minimax(arr, depth + 1, true);
-                        gameBoard[i][j] = '*';
+                        arr[i][j] = '*';
+                        //check and replace best score if necessary
                         if(scoreAI < bestScoreAI){
                             bestScoreAI = scoreAI;
                         }
@@ -165,6 +188,7 @@ public class TicTacToe {
         }
     }
 
+    //Check if the space is free
     public void turnCheck() {
         if(gameBoard[row][column] == '*') {
             freeSpace = true;
@@ -176,21 +200,24 @@ public class TicTacToe {
     //Checks if a player got 3 in a row. If all the spaces are filled but there is no winner then it is a tie.
     public void checkWin() {
         for (int i = 0; i < 3; i++) {
+            //checks horizontal
             if (gameBoard[i][0] == gameBoard[i][1] && gameBoard[i][1] == gameBoard[i][2] && gameBoard[i][0] != '*') {
                 winner = true;
                 return;
             }
+            //checks vertical
             if (gameBoard[0][i] == gameBoard[1][i] && gameBoard[1][i] == gameBoard[2][i] && gameBoard[0][i] != '*') {
                 winner = true;
                 return;
             }
         }
 
+        //checks diagonal
         if (gameBoard[0][0] == gameBoard[1][1] && gameBoard[1][1] == gameBoard[2][2] && gameBoard[0][0] != '*') {
             winner = true;
             return;
         }
-
+        //checks diagonal
         if (gameBoard[0][2] == gameBoard[1][1] && gameBoard[1][1] == gameBoard[2][0] && gameBoard[0][2] != '*') {
             winner = true;
             return;
@@ -208,7 +235,10 @@ public class TicTacToe {
         }
     }
 
+    //checks if the game is over
     public void checkGameOver(){
+        //if there is a winner or a tie then the game is over
+        //I did it this way so it didnt interfere with the minimax since I didn't make a copy of the board
         if(winner || tie){
             gameOver = true;
         }
@@ -218,19 +248,21 @@ public class TicTacToe {
     //Runs a round. Based off the turn it knows if it is player 1's turn or player 2's
     public void playRound() {
         Scanner scanner = new Scanner(System.in);
-        // get human input
 
         //turnCheck();
 
             if (turn % 2 != 0) {
+                //runs ai turn first
                 ai();
             } else if (turn % 2 == 0) {
+                //set human input and run human turn
                 setInput(scanner.next().charAt(0));
                 boardInput();
                 human();
             } else {
                 System.out.println("Try again. Invalid space.");
             }
+            //incrememnt turn
             turn++;
 
     }
@@ -238,20 +270,26 @@ public class TicTacToe {
         //Plays the game. Prints the board at the start, and then after every round respectively
         public void playGame(){
 
+            //runs as long as game isnt over
             while (!gameOver) {
+                //play round
                 playRound();
-
+                //prints out board
                 for (int i = 0; i < 3; i++) {
                     for (int j = 0; j < 3; j++) {
                         System.out.print(gameBoard[i][j] + " ");
                     }
                     System.out.println();
                 }
+                //checks for win
                 checkWin();
+                //for debugging purposes
                 System.out.println("winner: " + winner + " tie: " + tie);
+                //checks if game is over
                 checkGameOver();
             }
 
+            //prints out board final time
             for (int i = 0; i < 3; i++) {
                 for (int j = 0; j < 3; j++) {
                     System.out.print(gameBoard[i][j] + " ");
@@ -259,6 +297,7 @@ public class TicTacToe {
                 System.out.println();
             }
 
+            //prints out who won or if there was a tie
             if(tie){
                 System.out.println("Tie");
             } else if((turn - 1) % 2 != 0){
