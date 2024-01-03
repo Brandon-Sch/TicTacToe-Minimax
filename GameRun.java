@@ -12,7 +12,9 @@
 
 public class GameRun {
     public static void main(String[] args) {
+        //creates new tictactoe game
         TicTacToe g1 = new TicTacToe();
+         //plays game
         g1.playGame();
     }
 }
