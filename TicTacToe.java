@@ -117,6 +117,8 @@ public class TicTacToe {
         //check for a win and if someone did win return score accordingly
         //If X win, +10, if O win, -10, if tie, +0
         checkWin();
+        
+        //I think there is something wrong here are the only scores that are returned and given to best score are 1, -1, and 0.
         if(winner){
             //If there is a winner check who won
             if(isMaximizing){
