@@ -64,8 +64,23 @@ public class TicTacToe {
 
     //Runs player 1 turn. Player 1 is O. based off row and column variable sets the spot to O.
     public void human() {
+        Scanner scanner = new Scanner(System.in);
         //take player input, check if the spot is taken, if not enter in depending on inp
-            gameBoard[row][column] = 'O';
+        freeSpace = true; //set to true so it enters the loop whenever human() is called
+        while(freeSpace) {
+            //set human input and run human turn
+            setInput(scanner.next().charAt(0));
+            freeSpace = false; //set to false so doesn't remain true and automatically exit loop
+            boardInput();
+            turnCheck();
+            if (freeSpace) {
+                gameBoard[row][column] = 'O';
+                freeSpace = false; //so it exits loop
+            } else {
+                System.out.println("Space not available, try again");
+                freeSpace = true; //so stays in loop
+            }
+        }
     }
 
 
@@ -117,16 +132,16 @@ public class TicTacToe {
         //check for a win and if someone did win return score accordingly
         //If X win, +10, if O win, -10, if tie, +0
         checkWin();
-        
+
         //I think there is something wrong here are the only scores that are returned and given to best score are 1, -1, and 0.
         if(winner){
             //If there is a winner check who won
             if(isMaximizing){
                 winner = false;
-                return 1;
+                return -10 + depth;
             } else{
                 winner = false;
-                return -1;
+                return 10 - depth;
             }
         } else if(tie){
             tie = false;
@@ -174,7 +189,7 @@ public class TicTacToe {
             for (int i = 0; i < 3; i++) {
                 for (int j = 0; j < 3; j++) {
                     if(arr[i][j] == '*'){
-                        arr[i][j] = 'X';
+                        arr[i][j] = 'O';
                         scoreAI = minimax(arr, depth + 1, true);
                         arr[i][j] = '*';
                         //check and replace best score if necessary
@@ -249,17 +264,10 @@ public class TicTacToe {
 
     //Runs a round. Based off the turn it knows if it is player 1's turn or player 2's
     public void playRound() {
-        Scanner scanner = new Scanner(System.in);
-
-        //turnCheck();
-
             if (turn % 2 != 0) {
                 //runs ai turn first
                 ai();
             } else if (turn % 2 == 0) {
-                //set human input and run human turn
-                setInput(scanner.next().charAt(0));
-                boardInput();
                 human();
             } else {
                 System.out.println("Try again. Invalid space.");
