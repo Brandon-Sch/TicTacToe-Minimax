@@ -294,7 +294,7 @@ public class TicTacToe {
                 //checks for win
                 checkWin();
                 //for debugging purposes
-                System.out.println("winner: " + winner + " tie: " + tie);
+                //System.out.println("winner: " + winner + " tie: " + tie);
                 //checks if game is over
                 checkGameOver();
             }
